@@ -2,14 +2,29 @@
 impressions
 10.130.411
 
+
+
 items
 1.358.099
+
+live items
+327.003
+
+id      title   career_level    discipline_id   industry_id     country region  latitude        longitude       employment      tags    created_at
+      active_during_test
+
+
+
 
 users
 1.500.001
 
+
 target users
 150.001
 
+
 interactions
 8.826.679
+user_id item_id interaction_type        created_at
+
