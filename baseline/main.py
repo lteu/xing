@@ -1,6 +1,8 @@
 import csv
 import time
 import os
+import sys
+import random
 
 import linecache
 
@@ -38,8 +40,8 @@ def getProfileFromUserID(userid):
 def loadActiveItems():
 	# get relevant items
 	linecount =0
-	liveItemCount = 0
-	items = []
+	# liveItemCount = 0
+	items = {}
 	with open(DATAPATH+'/active_items.csv','r') as f:
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:	
@@ -47,6 +49,7 @@ def loadActiveItems():
 				if int(row[12]) == 1:
 					tmpItem = {}
 
+					itemID = row[0]
 					tmpItem['id'] = row[0]
 					tmpItem['title'] = row[1]
 					tmpItem['career_level'] = row[2]
@@ -60,9 +63,11 @@ def loadActiveItems():
 					tmpItem['tags'] = row[10]
 					tmpItem['created_at'] = row[11]
 					tmpItem['active_during_test'] = row[12]
-					items.append(tmpItem)
 
-					liveItemCount += 1
+					items[itemID] = tmpItem
+					# items.append(tmpItem)
+
+					# liveItemCount += 1
 
 			linecount += 1
 	return items
@@ -92,39 +97,98 @@ def overlapping(set1,set2):
 
 	return counter
 
-def roleBasedEvaluation(user,item,arr):
-	weight = 3
-	arraySize = 100
-	userjobroles = user['jobroles']
-	itemtitles = item['title']
-	overlapScore = weight * overlapping(userjobroles,itemtitles)
-	if not arr:
-		jobItem = {"id":item['id'],"score":overlapScore}
-		arr.append(jobItem)
-	else:
-		counter = 0
-		for job in arr:
-			if job["score"] < overlapScore:
 
-				jobItem = {"id":item['id'],"score":overlapScore}
-				arr.insert(counter, jobItem)
-				if len(arr) >= arraySize:
-					arr = arr[:-1]
+def evaluateOverlap(arr,usertext,itemtext,itemid,weight):
+	arraySize = 100
+	hasAdded = False
+	score = weight * overlapping(usertext,itemtext)
+	if score >0:
+		jobItem = {"id":itemid,"score":score}
+
+		if not arr or len(arr) < arraySize:
+			
+			arr.append(jobItem)
+			hasAdded = True
+		else:
+			counter = 0
+			for job in arr:
+				if job["score"] < score:
+					arr.insert(counter, jobItem)
+					hasAdded = True
+					if len(arr) >= arraySize:
+						arr = arr[:-1]
 
 				break
+				counter += 1
 			
-			counter += 1
-	
+			if not hasAdded and len(arr) < arraySize:
+				arr.append(jobItem)
+
+			
 	return arr
 
+def evaluateMatching(arr,itemid,weight):
+	arraySize = 100
+	hasAdded = False
+
+	jobItem = {"id":itemid,"score":weight}
+	if not arr:
+		arr.append(jobItem)
+		hasAdded = True
+	else:
+		for job in arr:
+			if job['id'] == itemid:
+					return arr # already inserted
+
+	if not hasAdded and len(arr) < arraySize:
+		arr.append(jobItem)
+
+	return arr
+
+
+
+
+def mergeResult(arr_x_based, user, items, arr_merged):
+	for x in arr_x_based:
+		tmpId = x['id']
+		tmpScore = int(x['score'])
+
+		item = items[tmpId]
+		userCareerLevel = user['career_level']
+
+		if userCareerLevel == "0" or userCareerLevel == "NULL":
+			userCareerLevel = "3"
+
+		if userCareerLevel == item['career_level']:
+			if tmpId in arr_merged:
+				arr_merged[tmpId] = tmpScore + arr_merged[tmpId]
+			else:
+				arr_merged[tmpId] = tmpScore
+	return arr_merged
+
+def filterJobsWithDiscipline(items,discipline,region):
+	filtered_items = []
+	for key, item in items.iteritems():
+		if item['discipline_id'] == discipline and item['region'] == region:
+			filtered_items.append(item)
+	return filtered_items
+
+def filterJobsWithIndu(items,indu,region):
+	filtered_items = []
+	for key, item in items.iteritems():
+		if item['industry_id'] == indu and item['region'] == region:
+			filtered_items.append(item)
+	return filtered_items
+
+# =============================================================
+# - MAIN -
+# =============================================================
 
 start_time = time.time()
 
 
 in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
-
-
 
 # ---------------
 # LOADING : get test user
@@ -139,13 +203,13 @@ with open(DATAPATH+'/test/target_users.csv','rb') as f:
 		if linecount > 0:
 			users.append(row[0])
 
-		if linecount >100:
+		if linecount >10: #testing 10 users only
 			break
 
 		linecount += 1
 
 
-print "users loaded ..."
+print "test users loaded ..."
 # print users
 
 items = loadActiveItems()
@@ -161,37 +225,83 @@ for userid in users:
 	print user
 
 	arr_role_based =[]
-	# no jobrole
-	if int(user['jobroles']) != 0:
-		for item in items:
-			arr_role_based = roleBasedEvaluation(user,item,arr_role_based)
+	arr_tag_based = []
+	arr_disp_based = []
+	arr_indu_based = []
 
-	#job role based 
+	# job role based 
+	if user['jobroles'] != "0":
+	
+		# job role title based
+		# for key, item in items.iteritems():
+		# 	usertext = user['jobroles']
+		# 	itemtext = item['title']
+		# 	itemid = item['id']
+		# 	weight = 3
+		# 	arr_role_based = evaluateOverlap(arr_role_based,usertext,itemtext,itemid,weight)
 
-	#job robe tags based
-
-	#discipline and region based
-
-	# industry and region based
-
-	#score aggregation
-
-
-
-
-	maincounter += 1
-	# print liveItemCount
-	if maincounter == 5:
-		break # testing 1 user
-
-	print user['jobroles']
-	print arr_role_based
-	print ' '
+		# print len(arr_role_based)
+		# print ''
+		print ''
 	
 
+		# job role tags based
+		# for key, item in items.iteritems():
+		# 	usertext = user['jobroles']
+		# 	itemtext = item['tags']
+		# 	itemid = item['id']
+		# 	weight = 2
+		# 	arr_tag_based = evaluateOverlap(arr_tag_based,usertext,itemtext,itemid,weight)
+
+	# 	# print arr_tag_based
+
+	# # discipline and region based
+	# if user['discipline_id'] != "0":
+		
+	# 	discipline = user['discipline_id']
+	# 	region = user['region']
+	# 	filtered_items = filterJobsWithDiscipline(items,discipline,region)
+	# 	while len(arr_disp_based) < 100 and len(filtered_items)>0:
+	# 		item = random.choice(filtered_items)
+	# 		itemid = item['id']
+	# 		weight = 2
+	# 		arr_disp_based = evaluateMatching(arr_disp_based,itemid,weight)
+	# 		filtered_items.remove(item)
+			# print 'arrlen: ',len(arr_disp_based), ' itemid:', itemid
 
 
+	# # industry and region based
+	if user['industry_id'] != "0":
 
+		industry_id = user['industry_id']
+		region = user['region']
+		filtered_items = filterJobsWithIndu(items,industry_id,region)
+		while len(arr_indu_based) < 100 and len(filtered_items)>0:
+			item = random.choice(filtered_items)
+			itemid = item['id']
+			weight = 1
+			arr_indu_based = evaluateMatching(arr_indu_based,itemid,weight)
+			filtered_items.remove(item)
+
+			print 'arrlen: ',len(arr_indu_based), ' itemid:', itemid
+
+
+	# # score aggregation
+	print arr_indu_based
+	arr_merged = {}
+	arr_merged = mergeResult(arr_role_based, user, items, arr_merged)
+	arr_merged = mergeResult(arr_tag_based, user, items, arr_merged)
+	arr_merged = mergeResult(arr_disp_based, user, items, arr_merged)
+	arr_merged = mergeResult(arr_indu_based, user, items, arr_merged)
+
+	maincounter += 1
+
+	print arr_merged
+
+	print ' '
+
+	# if maincounter == 20:
+	# 	break # testing 1 user
 
 # print ct,' records'
 
