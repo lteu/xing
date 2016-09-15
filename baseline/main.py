@@ -3,20 +3,26 @@ import time
 import os
 import sys
 import random
+import operator
 
-import linecache
+import numpy as np
+
+#---------------------------------------------------------------
+#	Loading functions
+#---------------------------------------------------------------
 
 
-def getProfileFromUserID(userid):
+
+# get user profile from CSV database by his ID O(n)
+# ---------------------------------------------------------------
+def getProfileByUserID(userid):
 	linecount = 0
 	user = {}
 	with open(DATAPATH+'/users.csv','r') as f:
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:
-
 			if linecount > 0:
 				if int(row[0]) == int(userid):
-					print row
 					user['id'] = row[0]
 					user['jobroles'] = row[1]
 					user['career_level'] = row[2]
@@ -30,17 +36,16 @@ def getProfileFromUserID(userid):
 					user['edu_degree'] = row[10]
 					user['edu_fieldofstudies'] = row[11]
 					break
-			
 			linecount += 1
 
 	return user
 			
 
 
+# function that loads active items (pre-filtered) into a dictionary
+# ---------------------------------------------------------------
 def loadActiveItems():
-	# get relevant items
 	linecount =0
-	# liveItemCount = 0
 	items = {}
 	with open(DATAPATH+'/active_items.csv','r') as f:
 		reader = csv.reader(f, delimiter='\t')
@@ -63,18 +68,16 @@ def loadActiveItems():
 					tmpItem['tags'] = row[10]
 					tmpItem['created_at'] = row[11]
 					tmpItem['active_during_test'] = row[12]
-
 					items[itemID] = tmpItem
-					# items.append(tmpItem)
-
-					# liveItemCount += 1
-
 			linecount += 1
 	return items
 
-#-------------------------
-#	evaluation func
-#-------------------------
+
+
+#---------------------------------------------------------------
+#	evaluating functions
+#---------------------------------------------------------------
+
 
 def overlapping(set1,set2):
 	
@@ -86,18 +89,12 @@ def overlapping(set1,set2):
 	piece1 = set1.split(",")
 	piece2 = set2.split(",")
 
-	counter = 0
-	for i in piece1:
-		if i in piece2:
-			counter += 1
-
-	# if counter != 0:
-	# 	print set1,' ',set2
-	# 	print counter
-
-	return counter
+	return len(set(piece1) & set(piece2)) #interction
+	# return len(set(a).intersection(set(b)))
 
 
+# evaluate preference overlap
+#---------------------------------------------------------------
 def evaluateOverlap(arr,usertext,itemtext,itemid,weight):
 	arraySize = 100
 	hasAdded = False
@@ -105,27 +102,28 @@ def evaluateOverlap(arr,usertext,itemtext,itemid,weight):
 	if score >0:
 		jobItem = {"id":itemid,"score":score}
 
-		if not arr or len(arr) < arraySize:
-			
+		if not arr: # initial array
 			arr.append(jobItem)
 			hasAdded = True
-		else:
+		else: # insert
 			counter = 0
 			for job in arr:
-				if job["score"] < score:
-					arr.insert(counter, jobItem)
-					hasAdded = True
-					if len(arr) >= arraySize:
-						arr = arr[:-1]
-
-				break
+				if job["score"] <= score:
+					shouldAdd = True if (random.random() < 0.5) else False
+					if job["score"] < score or shouldAdd:
+						arr.insert(counter, jobItem)
+						hasAdded = True
+						if len(arr) >= arraySize:
+							arr = arr[:-1]
+						break
 				counter += 1
 			
-			if not hasAdded and len(arr) < arraySize:
-				arr.append(jobItem)
-
-			
+		if not hasAdded and len(arr) < arraySize: # append
+			arr.append(jobItem)
 	return arr
+
+# evaluate matching
+#---------------------------------------------------------------
 
 def evaluateMatching(arr,itemid,weight):
 	arraySize = 100
@@ -146,17 +144,20 @@ def evaluateMatching(arr,itemid,weight):
 	return arr
 
 
-
+#	score aggregation functions
+#---------------------------------------------------------------
 
 def mergeResult(arr_x_based, user, items, arr_merged):
-	for x in arr_x_based:
-		tmpId = x['id']
-		tmpScore = int(x['score'])
+
+	for arr_item in arr_x_based:
+
+		tmpId = arr_item['id']
+		tmpScore = int(arr_item['score'])
 
 		item = items[tmpId]
 		userCareerLevel = user['career_level']
 
-		if userCareerLevel == "0" or userCareerLevel == "NULL":
+		if userCareerLevel == "0" or userCareerLevel == "NULL": # requested by specification
 			userCareerLevel = "3"
 
 		if userCareerLevel == item['career_level']:
@@ -164,7 +165,12 @@ def mergeResult(arr_x_based, user, items, arr_merged):
 				arr_merged[tmpId] = tmpScore + arr_merged[tmpId]
 			else:
 				arr_merged[tmpId] = tmpScore
+
 	return arr_merged
+
+
+#	job items filtering functions
+#---------------------------------------------------------------
 
 def filterJobsWithDiscipline(items,discipline,region):
 	filtered_items = []
@@ -180,9 +186,17 @@ def filterJobsWithIndu(items,indu,region):
 			filtered_items.append(item)
 	return filtered_items
 
+
+
+
+
+# =============================================================
 # =============================================================
 # - MAIN -
 # =============================================================
+# =============================================================
+
+
 
 start_time = time.time()
 
@@ -190,39 +204,47 @@ start_time = time.time()
 in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
 
-# ---------------
-# LOADING : get test user
-# ---------------
 
 
-linecount = 0
-users = []
-with open(DATAPATH+'/test/target_users.csv','rb') as f:
-	reader = csv.reader(f)
-	for row in reader:
-		if linecount > 0:
-			users.append(row[0])
 
-		if linecount >10: #testing 10 users only
-			break
+# loading ...
+# =============================================================
 
-		linecount += 1
+# linecount = 0
+# users = []
+# with open(DATAPATH+'/test/target_users.csv','rb') as f:
+# 	reader = csv.reader(f)
+# 	for row in reader:
+# 		if linecount > 0:
+# 			users.append(row[0])
+
+# 		if linecount >10: #testing 10 users only
+# 			break
+
+# 		linecount += 1
+
+users = [2400,3700,6400,7100,8600,11000,12300,12400,12900,14500,20400,21500,24800,25000,27000,31400]
+# users = [24800]
+
 
 
 print "test users loaded ..."
-# print users
 
 items = loadActiveItems()
 
 print "items loaded ...", len(items)
-# learn and predict
 
-maincounter = 0
+
+
+# learn and predict
+# =============================================================
+
+arr_solution_lines = []
 for userid in users:
+	userid = str(userid)
 	# get user profile
 	print 'user: ' + userid
-	user = getProfileFromUserID(userid)
-	print user
+	user = getProfileByUserID(userid)
 
 	arr_role_based =[]
 	arr_tag_based = []
@@ -232,45 +254,42 @@ for userid in users:
 	# job role based 
 	if user['jobroles'] != "0":
 	
-		# job role title based
-		# for key, item in items.iteritems():
-		# 	usertext = user['jobroles']
-		# 	itemtext = item['title']
-		# 	itemid = item['id']
-		# 	weight = 3
-		# 	arr_role_based = evaluateOverlap(arr_role_based,usertext,itemtext,itemid,weight)
+		#  -- job role title based  --
+		for key, item in items.iteritems():
+			usertext = user['jobroles']
+			itemtext = item['title']
+			itemid = item['id']
+			weight = 3
+			arr_role_based = evaluateOverlap(arr_role_based,usertext,itemtext,itemid,weight)
 
-		# print len(arr_role_based)
-		# print ''
-		print ''
+		print 'job role title based done'
 	
 
-		# job role tags based
-		# for key, item in items.iteritems():
-		# 	usertext = user['jobroles']
-		# 	itemtext = item['tags']
-		# 	itemid = item['id']
-		# 	weight = 2
-		# 	arr_tag_based = evaluateOverlap(arr_tag_based,usertext,itemtext,itemid,weight)
+		# -- job role tags based
+		for key, item in items.iteritems():
+			usertext = user['jobroles']
+			itemtext = item['tags']
+			itemid = item['id']
+			weight = 2
+			arr_tag_based = evaluateOverlap(arr_tag_based,usertext,itemtext,itemid,weight)
 
-	# 	# print arr_tag_based
+		print 'job role tags based done'
 
-	# # discipline and region based
-	# if user['discipline_id'] != "0":
+	# -- discipline and region based --
+	if user['discipline_id'] != "0":
 		
-	# 	discipline = user['discipline_id']
-	# 	region = user['region']
-	# 	filtered_items = filterJobsWithDiscipline(items,discipline,region)
-	# 	while len(arr_disp_based) < 100 and len(filtered_items)>0:
-	# 		item = random.choice(filtered_items)
-	# 		itemid = item['id']
-	# 		weight = 2
-	# 		arr_disp_based = evaluateMatching(arr_disp_based,itemid,weight)
-	# 		filtered_items.remove(item)
-			# print 'arrlen: ',len(arr_disp_based), ' itemid:', itemid
+		discipline = user['discipline_id']
+		region = user['region']
+		filtered_items = filterJobsWithDiscipline(items,discipline,region)
+		while len(arr_disp_based) < 100 and len(filtered_items)>0:
+			item = random.choice(filtered_items)
+			itemid = item['id']
+			weight = 2
+			arr_disp_based = evaluateMatching(arr_disp_based,itemid,weight)
+			filtered_items.remove(item)
 
 
-	# # industry and region based
+	# -- industry and region based --
 	if user['industry_id'] != "0":
 
 		industry_id = user['industry_id']
@@ -283,57 +302,34 @@ for userid in users:
 			arr_indu_based = evaluateMatching(arr_indu_based,itemid,weight)
 			filtered_items.remove(item)
 
-			print 'arrlen: ',len(arr_indu_based), ' itemid:', itemid
+	# score aggregation process
 
-
-	# # score aggregation
-	print arr_indu_based
 	arr_merged = {}
 	arr_merged = mergeResult(arr_role_based, user, items, arr_merged)
 	arr_merged = mergeResult(arr_tag_based, user, items, arr_merged)
 	arr_merged = mergeResult(arr_disp_based, user, items, arr_merged)
 	arr_merged = mergeResult(arr_indu_based, user, items, arr_merged)
 
-	maincounter += 1
+	sorted_arr_merged = sorted(arr_merged.items(), key=operator.itemgetter(1)) 
 
-	print arr_merged
+	arr = np.array(sorted_arr_merged)[:,0]
+	outputLine = userid+"\t"+",".join(arr)
 
-	print ' '
-
-	# if maincounter == 20:
-	# 	break # testing 1 user
-
-# print ct,' records'
-
-# lines=[1000235]
-# i=0
-# f=open('data/interactions.csv')
-# for line in f:
-#     if i in lines:
-#         print line
-#     i+=1
-
-# x = linecache.getline('data/interactions.csv', 1000235)
-
-# print x
+	arr_solution_lines.append(outputLine)
 
 
-# for n,line in enumerate(open("data/interactions.csv")):
-#     if n+1 in [1000235]: # or n in [25,29] 
-#        print line.rstrip()
+# output results
+# =============================================================
+
+# write solution results for all users
+header = "user_id\titems"
+with open(DATAPATH+'/solution.csv', 'w') as f:
+	f.write(str(header)+"\n")
+	for line in arr_solution_lines:
+		f.write(str(line)+"\n")
+
+print 'writing operation done ...'
+
+
        
 print("--- %s seconds ---" % (time.time() - start_time))
-
-
-
-
-# #Import Library
-# from sklearn import svm
-# #Assumed you have, X (predictor) and Y (target) for training data set and x_test(predictor) of test_dataset
-# # Create SVM classification object 
-# model = svm.SVC(kernel='linear', c=1, gamma=1) 
-# # there is various option associated with it, like changing kernel, gamma and C value. Will discuss more # about it in next section.Train the model using the training sets and check score
-# model.fit(X, y)
-# model.score(X, y)
-# #Predict Output
-# predicted= model.predict(x_test)
