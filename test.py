@@ -30,10 +30,11 @@ ct = 0
 #         print line
 #     i+=1
 
-x = linecache.getline('data/interactions.csv', 1000235)
+# x = linecache.getline('data/interactions.csv', 1000235)
 
-print x
-
+arr  =  []
+arr = arr[:100]
+print arr
 
 # for n,line in enumerate(open("data/interactions.csv")):
 #     if n+1 in [1000235]: # or n in [25,29] 

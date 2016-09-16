@@ -41,6 +41,32 @@ def getProfileByUserID(userid):
 	return user
 			
 
+# function that loads all target users with his profile items
+# ---------------------------------------------------------------
+def loadTargetUsersWithProfile():
+	linecount =0
+	users = {}
+	with open(DATAPATH+'/target_users_profile.csv','r') as f:
+		reader = csv.reader(f, delimiter='\t')
+		for row in reader:	
+			if linecount > 0:
+				user = {}
+				userid = row[0]
+				user['id'] = row[0]
+				user['jobroles'] = row[1]
+				user['career_level'] = row[2]
+				user['discipline_id'] = row[3]
+				user['industry_id'] = row[4]
+				user['country'] = row[5]
+				user['region'] = row[6]
+				user['experience_n_entries_class'] = row[7]
+				user['experience_years_experience'] = row[8]
+				user['experience_years_in_current'] = row[9]
+				user['edu_degree'] = row[10]
+				user['edu_fieldofstudies'] = row[11]
+				users[userid] = user
+			linecount += 1
+	return users
 
 # function that loads active items (pre-filtered) into a dictionary
 # ---------------------------------------------------------------
@@ -161,10 +187,23 @@ def mergeResult(arr_x_based, user, items, arr_merged):
 			userCareerLevel = "3"
 
 		if userCareerLevel == item['career_level']:
-			if tmpId in arr_merged:
-				arr_merged[tmpId] = tmpScore + arr_merged[tmpId]
+			if not arr_merged:
+				arr_merged.append([tmpId,tmpScore])
 			else:
-				arr_merged[tmpId] = tmpScore
+				hasUpdated = False
+				# for item_merged in arr_merged:
+				for idx, val in enumerate(arr_merged):
+					if val[0] == tmpId:
+						arr_merged[idx][1] =arr_merged[idx][1]+tmpScore
+						hasUpdated = True
+				if not hasUpdated:
+					arr_merged.append([tmpId,tmpScore])
+
+
+			# if tmpId in arr_merged:
+			# 	arr_merged[tmpId] = tmpScore + arr_merged[tmpId]
+			# else:
+			# 	arr_merged[tmpId] = tmpScore
 
 	return arr_merged
 
@@ -187,7 +226,8 @@ def filterJobsWithIndu(items,indu,region):
 	return filtered_items
 
 
-
+def column(matrix, i):
+    return [row[i] for row in matrix]
 
 
 # =============================================================
@@ -210,41 +250,47 @@ DATAPATH = '/'.join(in_path) + '/data'
 # loading ...
 # =============================================================
 
-# linecount = 0
-# users = []
-# with open(DATAPATH+'/test/target_users.csv','rb') as f:
-# 	reader = csv.reader(f)
-# 	for row in reader:
-# 		if linecount > 0:
-# 			users.append(row[0])
+linecount = 0
+users = []
+with open(DATAPATH+'/test/target_users.csv','rb') as f:
+	reader = csv.reader(f)
+	for row in reader:
+		if linecount > 0:
+			users.append(row[0])
+		linecount += 1
 
-# 		if linecount >10: #testing 10 users only
-# 			break
-
-# 		linecount += 1
-
-users = [2400,3700,6400,7100,8600,11000,12300,12400,12900,14500,20400,21500,24800,25000,27000,31400]
+# users = [2400,3700,6400,7100,8600,11000,12300,12400,12900,14500,20400,21500,24800,25000,27000,31400]
 # users = [24800]
 
 
-
-print "test users loaded ..."
+# print "test users loaded ..."
 
 items = loadActiveItems()
 
-print "items loaded ...", len(items)
+# print "items loaded ...", len(items)
 
+userset = loadTargetUsersWithProfile()
+
+print "users profile loaded"
+
+
+
+# write output file header
+# =============================================================
+
+header = "user_id\titems"
+with open(DATAPATH+'/solution.csv', 'w') as f:
+	f.write(str(header)+"\n")
 
 
 # learn and predict
 # =============================================================
 
+maincounter = 0
 arr_solution_lines = []
 for userid in users:
 	userid = str(userid)
-	# get user profile
-	print 'user: ' + userid
-	user = getProfileByUserID(userid)
+	user = userset[userid]
 
 	arr_role_based =[]
 	arr_tag_based = []
@@ -262,9 +308,8 @@ for userid in users:
 			weight = 3
 			arr_role_based = evaluateOverlap(arr_role_based,usertext,itemtext,itemid,weight)
 
-		print 'job role title based done'
+		# print 'job role title based done'
 	
-
 		# -- job role tags based
 		for key, item in items.iteritems():
 			usertext = user['jobroles']
@@ -273,7 +318,7 @@ for userid in users:
 			weight = 2
 			arr_tag_based = evaluateOverlap(arr_tag_based,usertext,itemtext,itemid,weight)
 
-		print 'job role tags based done'
+		# print 'job role tags based done'
 
 	# -- discipline and region based --
 	if user['discipline_id'] != "0":
@@ -304,31 +349,45 @@ for userid in users:
 
 	# score aggregation process
 
-	arr_merged = {}
+	arr_merged = []
 	arr_merged = mergeResult(arr_role_based, user, items, arr_merged)
 	arr_merged = mergeResult(arr_tag_based, user, items, arr_merged)
 	arr_merged = mergeResult(arr_disp_based, user, items, arr_merged)
 	arr_merged = mergeResult(arr_indu_based, user, items, arr_merged)
 
-	sorted_arr_merged = sorted(arr_merged.items(), key=operator.itemgetter(1)) 
+	arr_merged = sorted(arr_merged,key=lambda x: x[1])
 
-	arr = np.array(sorted_arr_merged)[:,0]
+	arr = column(arr_merged,0) # take only the item id sorted
+	arr = arr[:35] # take only the first 35 items
+
 	outputLine = userid+"\t"+",".join(arr)
 
 	arr_solution_lines.append(outputLine)
 
+	maincounter += 1
+	if maincounter % 50 == 0:
+		with open(DATAPATH+'/solution.csv', 'a') as f:
+			for line in arr_solution_lines:
+				f.write(str(line)+"\n")
 
-# output results
-# =============================================================
+			arr_solution_lines = []
+			print str(maincounter),' of ',len(users),' processed ...'
 
-# write solution results for all users
-header = "user_id\titems"
-with open(DATAPATH+'/solution.csv', 'w') as f:
-	f.write(str(header)+"\n")
-	for line in arr_solution_lines:
-		f.write(str(line)+"\n")
 
-print 'writing operation done ...'
+
+# write the last results
+if len(arr_solution_lines) > 0:
+	with open(DATAPATH+'/solution.csv', 'a') as f:
+		for line in arr_solution_lines:
+			f.write(str(line)+"\n")
+
+	arr_solution_lines = []
+	print 'rest of results written ...'
+
+	
+
+
+print 'operations completed ...'
 
 
        
