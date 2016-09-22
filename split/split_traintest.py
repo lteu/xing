@@ -7,6 +7,11 @@ import linecache
 
 start_time = time.time()
 
+
+in_path = os.path.realpath(__file__).split('/')[:-2]
+DATAPATH = '/'.join(in_path) + '/data'
+
+
 count = 0
 arr = []
 
@@ -31,7 +36,7 @@ header = ""
 
 
 # with open('data/interactions.csv','rb') as f:
-with open('data/train/some.csv','rb') as f:
+with open(DATAPATH+'/train/some.csv','rb') as f:
 	reader = csv.reader(f, delimiter='\t')
 	for row in reader:
 		if count==0:

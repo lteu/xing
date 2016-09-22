@@ -6,7 +6,7 @@ import os
 start_time = time.time()
 
 
-in_path = os.path.realpath(__file__).split('/')[:-1]
+in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
 
 

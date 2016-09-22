@@ -8,7 +8,16 @@ import linecache
 start_time = time.time()
 
 
-ct = 0
+# array element test
+#----------------------------------
+
+a = [1,3,5]
+b = [2,4,5]
+
+c = a+b
+print c
+
+# ct = 0
 # with open('data/impressions.csv','rb') as f:
 # with open('data/interactions.csv','rb') as f:
 # 	reader = csv.reader(f)
@@ -32,9 +41,9 @@ ct = 0
 
 # x = linecache.getline('data/interactions.csv', 1000235)
 
-arr  =  []
-arr = arr[:100]
-print arr
+# arr  =  []
+# arr = arr[:100]
+# print arr
 
 # for n,line in enumerate(open("data/interactions.csv")):
 #     if n+1 in [1000235]: # or n in [25,29] 

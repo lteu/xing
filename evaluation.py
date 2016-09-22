@@ -65,7 +65,7 @@ DATAPATH = '/'.join(in_path) + '/data'
 S={}
 linecount = 0
 with open(DATAPATH+'/test/solution_file_example.csv','rb') as f:
-	
+# with open(DATAPATH+'/solution.csv','rb') as f:	
 	reader = csv.reader(f,delimiter='\t')
 	for row in reader:
 		if linecount > 0:

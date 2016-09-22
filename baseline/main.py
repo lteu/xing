@@ -1,3 +1,8 @@
+'''
+
+This basline script unfortunately could have several bugs :(
+
+'''
 import csv
 import time
 import os

@@ -7,6 +7,8 @@ import linecache
 
 start_time = time.time()
 
+in_path = os.path.realpath(__file__).split('/')[:-2]
+DATAPATH = '/'.join(in_path) + '/data'
 
 arr_activeItems = []
 arr_disactiveItems = []
@@ -15,7 +17,7 @@ header = ""
 
 count = 0
 itemcount = 0
-with open('data/items.csv','r') as f:
+with open(DATAPATH+'/items.csv','r') as f:
 	reader = csv.reader(f, delimiter='\t')
 	for row in reader:
 		if count==0:
@@ -36,7 +38,7 @@ print "total items: ", itemcount
 
 
 count1 = 0
-with open('data/active_items.csv', 'w') as f:
+with open(DATAPATH+'/active_items.csv', 'w') as f:
     f.write(str(header)+"\n")
     for row in arr_activeItems:
     	f.write(str(row)+"\n")
@@ -45,7 +47,7 @@ print "active items : ", count1
 
 
 count2 = 0
-with open('data/disactive_items.csv', 'w') as f:
+with open(DATAPATH+'/disactive_items.csv', 'w') as f:
     f.write(str(header)+"\n")
     for row in arr_disactiveItems:
     	f.write(str(row)+"\n")
