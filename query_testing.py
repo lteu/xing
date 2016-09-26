@@ -8,7 +8,7 @@ import os
 def getProfileByUserID(userid):
 	linecount = 0
 	user = {}
-	with open(DATAPATH+'/users.csv','r') as f:
+	with open(DATAPATH+'/original/users.csv','r') as f:
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:
 			if linecount > 0:
@@ -32,8 +32,8 @@ def getProfileByUserID(userid):
 			
 def getSpecificActiveItem(itemid):
 	linecount =0
-	# with open(DATAPATH+'/active_items.csv','r') as f:
-	with open(DATAPATH+'/active_items.csv','r') as f:
+	# with open(DATAPATH+'/target/active_items.csv','r') as f:
+	with open(DATAPATH+'/target/active_items.csv','r') as f:
 		reader = csv.reader(f, delimiter='\t')
 		tmpItem = {}
 		for row in reader:	

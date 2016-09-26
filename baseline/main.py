@@ -23,7 +23,7 @@ import numpy as np
 def getProfileByUserID(userid):
 	linecount = 0
 	user = {}
-	with open(DATAPATH+'/users.csv','r') as f:
+	with open(DATAPATH+'/original/users.csv','r') as f:
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:
 			if linecount > 0:
@@ -51,7 +51,7 @@ def getProfileByUserID(userid):
 def loadTargetUsersWithProfile():
 	linecount =0
 	users = {}
-	with open(DATAPATH+'/target_users_profile.csv','r') as f:
+	with open(DATAPATH+'/target/target_users_profile.csv','r') as f:
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:	
 			if linecount > 0:
@@ -78,7 +78,7 @@ def loadTargetUsersWithProfile():
 def loadActiveItems():
 	linecount =0
 	items = {}
-	with open(DATAPATH+'/active_items.csv','r') as f:
+	with open(DATAPATH+'/target/active_items.csv','r') as f:
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:	
 			if linecount > 0:
@@ -257,7 +257,7 @@ DATAPATH = '/'.join(in_path) + '/data'
 
 linecount = 0
 users = []
-with open(DATAPATH+'/test/target_users.csv','rb') as f:
+with open(DATAPATH+'/target/target_users.csv','rb') as f:
 	reader = csv.reader(f)
 	for row in reader:
 		if linecount > 0:
@@ -284,7 +284,7 @@ print "users profile loaded"
 # =============================================================
 
 header = "user_id\titems"
-with open(DATAPATH+'/solution.csv', 'w') as f:
+with open(DATAPATH+'/solution/solution_baseline.csv', 'w') as f:
 	f.write(str(header)+"\n")
 
 
@@ -371,7 +371,7 @@ for userid in users:
 
 	maincounter += 1
 	if maincounter % 50 == 0:
-		with open(DATAPATH+'/solution.csv', 'a') as f:
+		with open(DATAPATH+'/solution/solution_baseline.csv', 'a') as f:
 			for line in arr_solution_lines:
 				f.write(str(line)+"\n")
 
@@ -382,7 +382,7 @@ for userid in users:
 
 # write the last results
 if len(arr_solution_lines) > 0:
-	with open(DATAPATH+'/solution.csv', 'a') as f:
+	with open(DATAPATH+'/solution/solution_baseline.csv', 'a') as f:
 		for line in arr_solution_lines:
 			f.write(str(line)+"\n")
 

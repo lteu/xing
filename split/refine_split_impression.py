@@ -20,7 +20,7 @@ week = 41
 
 linecount = 0
 target_users_id = {}
-with open(DATAPATH+'/test/target_users.csv','rb') as f:
+with open(DATAPATH+'/target/target_users.csv','rb') as f:
 	reader = csv.reader(f)
 	for row in reader:
 		if linecount > 0:

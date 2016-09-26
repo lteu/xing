@@ -64,8 +64,8 @@ DATAPATH = '/'.join(in_path) + '/data'
 # =============================================================
 S={}
 linecount = 0
-with open(DATAPATH+'/test/solution_file_example.csv','rb') as f:
-# with open(DATAPATH+'/solution.csv','rb') as f:	
+with open(DATAPATH+'/solution/solution_file_example.csv','rb') as f:
+# with open(DATAPATH+'/solution/solution.csv','rb') as f:	
 	reader = csv.reader(f,delimiter='\t')
 	for row in reader:
 		if linecount > 0:
@@ -79,7 +79,7 @@ with open(DATAPATH+'/test/solution_file_example.csv','rb') as f:
 # =============================================================
 T_dic = {}
 linecount = 0
-with open(DATAPATH+'/test/test_interactions.csv','rb') as f:
+with open(DATAPATH+'/ground/interactions_week45.csv','rb') as f:
 	reader = csv.reader(f,delimiter='\t')
 	for row in reader:
 		if linecount > 0:

@@ -24,7 +24,7 @@ DATAPATH = '/'.join(in_path) + '/data'
 
 linecount = 0
 target_users_id = []
-with open(DATAPATH+'/test/target_users.csv','rb') as f:
+with open(DATAPATH+'/target/target_users.csv','rb') as f:
 	reader = csv.reader(f)
 	for row in reader:
 		if linecount > 0:
@@ -43,7 +43,7 @@ for i in xrange(1,number_of_target_users):
 	# print userid, 'size',len(target_users_id)
 
 
-with open(DATAPATH+'/test/target_users_small.csv', 'w') as f:
+with open(DATAPATH+'/target/target_users_small.csv', 'w') as f:
 	f.write(str('user_id')+"\n")
 	for row in small_userset:
 		f.write(str(row)+"\n")

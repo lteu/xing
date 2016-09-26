@@ -29,11 +29,10 @@ from sklearn.svm import SVC
 csv.field_size_limit(sys.maxsize)
 
 
-def getInteractionsByUserAndWeek(userid,numWeek):
+def loadInteractionsByUserAndWeek(userid,numWeek):
 	arr = {}
 	count = 0
 	with open(DATAPATH+'/interactions/week'+str(numWeek)+'b.csv','rb') as f:
-
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:
 			if count>1:
@@ -47,8 +46,7 @@ def getInteractionsByUserAndWeek(userid,numWeek):
 def getItemInfoFromItemset(item):
 	tmpItem ={}
 	count= 0
-	with open(DATAPATH+'/items.csv','rb') as f:
-
+	with open(DATAPATH+'/original/items.csv','rb') as f:
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:
 			if count>1:
@@ -71,7 +69,7 @@ def getItemInfoFromItemset(item):
 def loadItems():
 	itemset ={}
 	count= 0
-	with open(DATAPATH+'/items.csv','rb') as f:
+	with open(DATAPATH+'/original/items.csv','rb') as f:
 
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:
@@ -91,10 +89,11 @@ def loadItems():
 			count += 1
 	return itemset
 
+# instead of loading unnecessary 150.000.000 users
 def loadTargetUsersWithProfile():
 	linecount =0
 	users = {}
-	with open(DATAPATH+'/target_users_profile.csv','r') as f:
+	with open(DATAPATH+'/target/target_users_profile.csv','r') as f:
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:	
 			if linecount > 0:
@@ -119,7 +118,7 @@ def loadTargetUsersWithProfile():
 def loadTargetUserIDs(filename):
 	linecount = 0
 	target_users_id = []
-	with open(DATAPATH+'/test/'+filename,'rb') as f:
+	with open(DATAPATH+'/'+filename,'rb') as f:
 		reader = csv.reader(f)
 		for row in reader:
 			if linecount > 0:
@@ -142,16 +141,27 @@ def loadImpressions(userid,week):
 			count += 1
 	return impressions_array
 
+def loadImpressionsByUseridFilename(userid,filename):
+	impressions_array = []
+	count= 0
+	with open(DATAPATH+'/impressions/'+filename,'rb') as f:
+		reader = csv.reader(f, delimiter='\t')
+		for row in reader:
+			if count>1:
+				if int(userid) == int(row[0]):
+					impressions_array += row[3].split(",")
+					break
+			count += 1
+	return impressions_array
+
 def normalizeItemFeatures(item,seenTitles,seenTags):
+	career_level = 0
+	if item['career_level'] != 'null' and item['career_level'] != 'NULL' and item['career_level'] != '':
+		career_level = int(str(item['career_level']))
+	
 	feat_arr = []
 	feat_arr.append(calSimScoreForLists(seenTitles,item['title'].split(",")))
 	feat_arr.append(calSimScoreForLists(seenTags,item['tags'].split(",")))
-
-	career_level = 0
-
-	if item['career_level'] != 'null' and item['career_level'] != 'NULL' and item['career_level'] != '':
-		career_level = int(str(item['career_level']))
-
 	feat_arr.append(career_level)
 	feat_arr.append(int(item['discipline_id']))
 	feat_arr.append(int(item['industry_id']))
@@ -160,28 +170,29 @@ def normalizeItemFeatures(item,seenTitles,seenTags):
 	feat_arr.append(int(item['employment']))
 	return feat_arr
 
-def preprocessActiveItems(userprofile):
-	itemset = []
-	count= 0
-	with open(DATAPATH+'/active_items.csv','rb') as f:
-		reader = csv.reader(f, delimiter='\t')
-		for row in reader:
-			if count>1:
-				if str(userprofile['discipline_id']) == str(row[3]):
-					tmpItem = {}
-					tmpItem['title'] = row[1]
-					tmpItem['career_level'] = row[2]
-					tmpItem['discipline_id'] = row[3]
-					tmpItem['industry_id'] = row[4]
-					tmpItem['country'] = row[5]
-					tmpItem['region'] = row[6]
-					tmpItem['latitude'] = row[7]
-					tmpItem['longitude'] = row[8]
-					tmpItem['employment'] = row[9]
-					tmpItem['tags'] = row[10]
-					itemset.append(tmpItem)
-			count += 1
-	return impressions_array
+
+# def preprocessActiveItems(userprofile):
+# 	itemset = []
+# 	count= 0
+# 	with open(DATAPATH+'/active_items.csv','rb') as f:
+# 		reader = csv.reader(f, delimiter='\t')
+# 		for row in reader:
+# 			if count>1:
+# 				if str(userprofile['discipline_id']) == str(row[3]):
+# 					tmpItem = {}
+# 					tmpItem['title'] = row[1]
+# 					tmpItem['career_level'] = row[2]
+# 					tmpItem['discipline_id'] = row[3]
+# 					tmpItem['industry_id'] = row[4]
+# 					tmpItem['country'] = row[5]
+# 					tmpItem['region'] = row[6]
+# 					tmpItem['latitude'] = row[7]
+# 					tmpItem['longitude'] = row[8]
+# 					tmpItem['employment'] = row[9]
+# 					tmpItem['tags'] = row[10]
+# 					itemset.append(tmpItem)
+# 			count += 1
+# 	return impressions_array
 
 
 def calOccurenceRank(disorderList):
@@ -218,8 +229,6 @@ in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
 
 
-
-
 # =====================================
 # MAIN PROCESS
 # =====================================
@@ -239,11 +248,10 @@ userset = loadTargetUsersWithProfile()
 
 print 'target users loaded ... '
 
-target_user_ids = loadTargetUserIDs('target_users_small.csv')
+target_user_ids = loadTargetUserIDs('target/target_users_small.csv')
+# target_user_ids = loadTargetUserIDs('target/target_users.csv')
 
 print 'user ids loaded ...'
-# # for all users
-# user = 2125784
 
 output = []
 maincounter = 0
@@ -253,25 +261,27 @@ for user in target_user_ids:
 
 	# writing process
 	interactions = {}
-	interactions_tmp = getInteractionsByUserAndWeek(user,41)
+	interactions_tmp = loadInteractionsByUserAndWeek(user,41)
 	interactions = dict(interactions.items() + interactions_tmp.items())
 
-	interactions_tmp = getInteractionsByUserAndWeek(user,42)
+	interactions_tmp = loadInteractionsByUserAndWeek(user,42)
 	interactions = dict(interactions.items() + interactions_tmp.items())
 
-	interactions_tmp = getInteractionsByUserAndWeek(user,43)
+	interactions_tmp = loadInteractionsByUserAndWeek(user,43)
 	interactions = dict(interactions.items() + interactions_tmp.items())
 
-	interactions_tmp = getInteractionsByUserAndWeek(user,44)
+	interactions_tmp = loadInteractionsByUserAndWeek(user,44)
 	interactions = dict(interactions.items() + interactions_tmp.items())
 
 	print 'weekly interactions loaded'
 
 
-	impressions =  loadImpressions(user,41)
-	impressions +=  loadImpressions(user,42)
-	impressions +=  loadImpressions(user,43)
-	impressions +=  loadImpressions(user,44)
+	# impressions =  loadImpressions(user,41)
+	# impressions +=  loadImpressions(user,42)
+	# impressions +=  loadImpressions(user,43)
+	# impressions +=  loadImpressions(user,44)
+
+	impressions =  loadImpressionsByUseridFilename(user,'week-41-42-43-44c.csv')
 
 	print "weekly impressions loaded"
 

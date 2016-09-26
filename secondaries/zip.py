@@ -1,3 +1,10 @@
+#
+#
+# COMMENT zip approach for a fast file access has been proven not efficient
+#
+#
+
+
 # import csv, io, sys, zipfile
 
 # zip_file    = zipfile.ZipFile(sys.argv[1])

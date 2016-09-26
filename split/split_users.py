@@ -14,7 +14,7 @@ DATAPATH = '/'.join(in_path) + '/data'
 
 linecount = 0
 target_users_id = []
-with open(DATAPATH+'/test/target_users.csv','rb') as f:
+with open(DATAPATH+'/target/target_users.csv','rb') as f:
 	reader = csv.reader(f)
 	for row in reader:
 		if linecount > 0:
@@ -29,7 +29,7 @@ linecount = 0
 usersline = []
 header = ""
 usercount = 0
-with open(DATAPATH+'/users.csv','r') as f:
+with open(DATAPATH+'/original/users.csv','r') as f:
 	reader = csv.reader(f, delimiter='\t')
 	for row in reader:
 		if linecount == 0:
@@ -48,7 +48,7 @@ print "file users.csv read, target users found ", usercount ,' ....'
 # writing
 
 count2 = 0
-with open('data/target_users_profile.csv', 'w') as f:
+with open('data/target/target_users_profile.csv', 'w') as f:
     f.write(str(header)+"\n")
     for row in usersline:
     	f.write(str(row)+"\n")

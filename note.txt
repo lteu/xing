@@ -49,3 +49,46 @@ m'tags': '2846960,751977,1667325,392294,2026458,4344735,2314529,3788202,798840,4
 
 {'industry_id': '11', 'title': '3392240', 'country': 'de', 'region': '6', 'discipline_id': '15', 'longitude': '9.7', 'career_level': '3', 'latitude': '53.5', 'employment': '1', 'tags': '751977,1065754,2510736,3567561,1571903,3392240'
 
+
+COMMAND USAGE
+＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+
+
+LINUX:
+——————
+cat /proc/meminfo
+less /proc/cpuinfo
+cat /proc/cpuinfo | grep 'core id'
+
+lscpu
+
+wc -l filename
+
+grep:
+——————
+grep key filname
+grep '^208\b' interactions.csv #lines with word begins with ^…
+grep -w 'hello' *
+
+
+REGEX:
+—————
+Example:first word begins "as" and whos first word also ends with "ng":
+
+$ grep '^as\w*ng\b' file
+$ grep '^as[^ ]*ng\b' file
+$ grep '^as[a-zA-Z]*ng\b' file
+
+^    # Matches start of the line
+as   # Matches literal string as
+\w   # Matches characters in word class
+*    # Quantifies \w to match either zero or more
+ng   # Matches literal string ng
+\b   # Matches word boundary
+[^ ] # Matches zero or more of any character, except a space
+
+
+NOTE:
+————
+csv file ending with b, file contains only the target users
+csv file ending with c, file without duplicate items 

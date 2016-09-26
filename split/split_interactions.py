@@ -19,7 +19,7 @@ A = {}
 for x in xrange(0,46):
 	A[x] = []
 
-with open(DATAPATH+'/interactions.csv','rb') as f:
+with open(DATAPATH+'/original/interactions.csv','rb') as f:
 	reader = csv.reader(f, delimiter='\t')
 	for row in reader:
 		if count==0:

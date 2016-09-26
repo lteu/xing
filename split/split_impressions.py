@@ -19,7 +19,7 @@ header = ""
 week = 44
 
 B = []
-with open(DATAPATH+'/impressions.csv','rb') as f:
+with open(DATAPATH+'/original/impressions.csv','rb') as f:
 	reader = csv.reader(f, delimiter='\t')
 	for row in reader:
 		if count==0:
