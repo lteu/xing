@@ -12,7 +12,7 @@ DATAPATH = '/'.join(in_path) + '/data'
 
 
 header = ""
-week = 44
+week = 40
 
 
 # load target users

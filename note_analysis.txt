@@ -1,0 +1,25 @@
+got 0/16
+
+
+id	job roles	career	disp	country	regione	wkexp	yexp	cexp	deg	field
+131843 	3432139		0      	3      	8      	at     	0      	3      	7      	1      	2
+
+
+
+
+
+
+id - title - career_level - discipline_id - industry_id - country - region - latitude - longitude - employment - tags - created_at - active_during_test
+
+week44
+1384548	1581843,2457543,4484400	3      	15     	15     	de     	1      	49.8   	9.4    	1      	3949820,2720616,251868,3626685,2811951,4432807,1523848 	1440972000 	1
+594089 	3586517,2152374	3      	18     	15     	de     	7      	49.8   	8.1    	1      	2880795,751977,1065754,4011133,4439048,2969837,930957  	1438552800     	1
+2584619	1581843	3      	15     	15     	de     	9      	51.5   	7.0    	1      	3050589,3843067,137487,2076438 	NULL   	0
+
+
+ziniu.yang@studio.unibo.it
+monster1997?
+
+La soglia economica consente la richiesta della borsa di studio che include l'esonero totale delle tasse. Deve quindi richiedere la borsa di studio e NON la fascia di contribuzione ridotta
+
+La richiesta del beneficio di borsa di studio ed esonero totale dalle tasse universitarie termina il 26 settembre 2016

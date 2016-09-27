@@ -1,20 +1,15 @@
 
+Info Dataset :
+—————
+
 impressions
 10.130.411
-
-
 
 items
 1.358.099
 
 live items
 327.003
-
-id      title   career_level    discipline_id   industry_id     country region  latitude        longitude       employment      tags    created_at
-      active_during_test
-
-
-
 
 users
 1.500.001
@@ -30,24 +25,9 @@ user_id item_id interaction_type        created_at
 
 
 weeks:
-34 , 33, 35, 36, 37, 38, 39, 40 ,41, 42, 43
-43, 44
-45
-
-
-＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-industry_id': '10', 
-m'title': '2314529,1426397,751977', 
-'country': 'de', 
-'region': '0', 
-'discipline_id': '18', 
-'longitude': 'NULL', 
-'career_level': '2', 
-'latitude': 'NULL', 
-'employment': '0', 
-m'tags': '2846960,751977,1667325,392294,2026458,4344735,2314529,3788202,798840,4499767,3726822,4252882,1747915'}
-
-{'industry_id': '11', 'title': '3392240', 'country': 'de', 'region': '6', 'discipline_id': '15', 'longitude': '9.7', 'career_level': '3', 'latitude': '53.5', 'employment': '1', 'tags': '751977,1065754,2510736,3567561,1571903,3392240'
+34, 33, 35, 36, 37, 38, 39, 40 , 41, 
+42, 43, 43, 44 (avialible)
+45 (not avialible)
 
 
 COMMAND USAGE

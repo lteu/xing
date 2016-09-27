@@ -1,7 +1,7 @@
 import csv
 import time
 
-
+import datetime
 import linecache
 
 
@@ -11,11 +11,12 @@ start_time = time.time()
 # array element test
 #----------------------------------
 
-a = [1,3,5]
-b = [2,4,5]
+# a = [1,3,5]
+# b = [2,4,5]
 
-c = a+b
-print c
+# c = a+b
+# print c
+print datetime.datetime.fromtimestamp(float(1446131843)).strftime('%W')
 
 # ct = 0
 # with open('data/impressions.csv','rb') as f:
@@ -32,12 +33,12 @@ print c
 # print ct,' records'
 
 # lines=[1000235]
-# i=0
-# f=open('data/interactions.csv')
-# for line in f:
-#     if i in lines:
-#         print line
-#     i+=1
+i=0
+f=open('data/original/interactions.csv')
+for line in f:
+    if i >0 :
+        print line
+    i+=1
 
 # x = linecache.getline('data/interactions.csv', 1000235)
 

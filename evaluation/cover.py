@@ -54,13 +54,15 @@ def score_simple(S, T):
 			# print intersectedItems
 			if len(t) != 0 :
 				percentage = round(num_intersected / num_ground,2)
-				# print 'intsct ',num_intersected,' ground',num_ground,' percentage ', percentage
+				print 'user ',u,' intsct ',num_intersected,' ground',num_ground,' percentage ', percentage
 				total += percentage
 
-			# 	# if percentage != 1.0:
-			# 	# 	print set(t)
-			# 	# 	print t
-			# 	# 	print intersectedItems
+				if percentage < 0.3:
+					print '---------------------'
+					print 'recommended ', set(r)
+					print 'ground ', set(t)
+					print 'intersected ',intersectedItems
+					print '---------------------'
 
 				count += 1
 	return total/count

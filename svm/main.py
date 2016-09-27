@@ -225,15 +225,23 @@ def convertCountryToCode(country):
 		return 0
 
 
+
+
+
+# =====================================
+# - - - MAIN - - - 
+# =====================================
+
 in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
 
 
-# =====================================
-# MAIN PROCESS
-# =====================================
-
-
+# create solution file process
+# -------------------------------------
+result_file = 'solution_svm.csv'
+header = "user_id\titems"
+with open(DATAPATH+'/solution/'+result_file, 'w') as f:
+	f.write(str(header)+"\n")
 
 
 # loading process
@@ -261,6 +269,9 @@ for user in target_user_ids:
 
 	# writing process
 	interactions = {}
+	interactions_tmp = loadInteractionsByUserAndWeek(user,40)
+	interactions = dict(interactions.items() + interactions_tmp.items())
+
 	interactions_tmp = loadInteractionsByUserAndWeek(user,41)
 	interactions = dict(interactions.items() + interactions_tmp.items())
 
@@ -270,18 +281,9 @@ for user in target_user_ids:
 	interactions_tmp = loadInteractionsByUserAndWeek(user,43)
 	interactions = dict(interactions.items() + interactions_tmp.items())
 
-	interactions_tmp = loadInteractionsByUserAndWeek(user,44)
-	interactions = dict(interactions.items() + interactions_tmp.items())
-
 	print 'weekly interactions loaded'
 
-
-	# impressions =  loadImpressions(user,41)
-	# impressions +=  loadImpressions(user,42)
-	# impressions +=  loadImpressions(user,43)
-	# impressions +=  loadImpressions(user,44)
-
-	impressions =  loadImpressionsByUseridFilename(user,'week-41-42-43-44c.csv')
+	impressions =  loadImpressionsByUseridFilename(user,'week-40-41-42-43c.csv')
 
 	print "weekly impressions loaded"
 
@@ -408,7 +410,7 @@ for user in target_user_ids:
 		x = []
 		x_ids = []
 		count= 0
-		with open(DATAPATH+'/active_items.csv','rb') as f:
+		with open(DATAPATH+'/target/active_items.csv','rb') as f:
 			reader = csv.reader(f, delimiter='\t')
 			for row in reader:
 				if count>1:
@@ -438,29 +440,31 @@ for user in target_user_ids:
 		y = y.tolist()
 
 		# making pair
+
 		itemscore = []
 		for i in xrange(0,len(x)):
 			itemscore.append([x_ids[i],y[i]])
 			
 		itemscore_sorted = sorted(itemscore,key=lambda x: x[1], reverse=True)
 
+		# result chopping
 
 		recommended_itemsSet = itemscore_sorted[:31]
 		recommended_items = []
 		for tmpItem in recommended_itemsSet:
 			recommended_items.append(tmpItem[0])
 
-		
+		# result stringfying
 
 		yy = ",".join(recommended_items)
 		outputline = str(user)+"\t"+yy
 		output.append(outputline)
 
-
+		# chunck output
 
 		maincounter += 1
 		if maincounter % 10 == 0:
-			with open(DATAPATH+'/solution_svm.csv', 'a') as f:
+			with open(DATAPATH+'/solution/'+result_file, 'a') as f:
 				for line in output:
 					f.write(str(line)+"\n")
 
@@ -472,7 +476,7 @@ for user in target_user_ids:
 # write final solutions
 # ------------
 
-with open(DATAPATH+'/solution_svm.csv', 'a') as f:
+with open(DATAPATH+'/solution/'+result_file, 'a') as f:
 	# f.write("userid\titems\n")
 	for line in output:
 		f.write(str(line)+"\n")

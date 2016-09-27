@@ -1,3 +1,5 @@
+'run this script then refine_impressions.py for duplication elimination'
+
 import csv
 import time
 import datetime
@@ -16,7 +18,7 @@ count = 0
 
 header = ""
 
-week = 44
+week = 40
 
 B = []
 with open(DATAPATH+'/original/impressions.csv','rb') as f:
