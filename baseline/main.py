@@ -393,7 +393,4 @@ if len(arr_solution_lines) > 0:
 
 
 print 'operations completed ...'
-
-
-       
 print("--- %s seconds ---" % (time.time() - start_time))

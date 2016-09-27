@@ -5,9 +5,24 @@ id	job roles	career	disp	country	regione	wkexp	yexp	cexp	deg	field
 131843 	3432139		0      	3      	8      	at     	0      	3      	7      	1      	2
 
 
+Gentile Operatore Ergo,
 
+Ho fatto la domanda di borsa di studio per questa anno,
 
+Però essendo matricola e per difficoltà linguistica mi sono accorta dopo di avere fatto qualche scelta che non desideravo. Vorrei chiedere se possibile modifichiate voi gentilmente le mie richieste.
 
+1) Per il servizio ristorativo, non volevo convertire le 250 euro.
+2) Ho un fratello a casa, invece ho fatto, nessuna selezione per il campo: 
+Fratelli presenti nel nucleo familiare
+3) La mia iscrizione all'unibo in anno assoluto è 2016.
+
+La ringrazio in anticipo per il suo favore
+e per la sua preziosa attenzione!
+
+Saluti Cordiali
+Yang HongJing
+
+,11italiacinese
 
 id - title - career_level - discipline_id - industry_id - country - region - latitude - longitude - employment - tags - created_at - active_during_test
 

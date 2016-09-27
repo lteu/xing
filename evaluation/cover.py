@@ -57,12 +57,12 @@ def score_simple(S, T):
 				print 'user ',u,' intsct ',num_intersected,' ground',num_ground,' percentage ', percentage
 				total += percentage
 
-				if percentage < 0.3:
-					print '---------------------'
-					print 'recommended ', set(r)
-					print 'ground ', set(t)
-					print 'intersected ',intersectedItems
-					print '---------------------'
+				# if percentage < 0.3:
+				# 	print '---------------------'
+				# 	print 'recommended ', set(r)
+				# 	print 'ground ', set(t)
+				# 	print 'intersected ',intersectedItems
+				# 	print '---------------------'
 
 				count += 1
 	return total/count
@@ -101,7 +101,7 @@ with open(DATAPATH+'/solution/solution_svm.csv','rb') as f:
 # =============================================================
 T_dic = {}
 linecount = 0
-with open(DATAPATH+'/ground/interactions_week45.csv','rb') as f:
+with open(DATAPATH+'/ground/interactions_week44.csv','rb') as f:
 
 	reader = csv.reader(f,delimiter='\t')
 	for row in reader:
