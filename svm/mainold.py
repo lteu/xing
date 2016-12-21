@@ -29,9 +29,45 @@ from sklearn.svm import SVC
 csv.field_size_limit(sys.maxsize)
 
 
+def loadInteractionsByUserAndWeek(userid,numWeek):
+	arr = {}
+	count = 0
+	with open(DATAPATH+'/interactions/week'+str(numWeek)+'b.csv','rb') as f:
+		reader = csv.reader(f, delimiter='\t')
+		for row in reader:
+			if count>1:
+				if int(userid) == int(row[0]):
+					itemid = str(row[1])
+					intype = row[2]
+					arr[itemid]=intype
+			count += 1
+	return arr
+
+def getItemInfoFromItemset(item):
+	tmpItem ={}
+	count= 0
+	with open(DATAPATH+'/original/items.csv','rb') as f:
+		reader = csv.reader(f, delimiter='\t')
+		for row in reader:
+			if count>1:
+				if int(item) == int(row[0]):
+					tmpItem['title'] = row[1]
+					tmpItem['career_level'] = row[2]
+					tmpItem['discipline_id'] = row[3]
+					tmpItem['industry_id'] = row[4]
+					tmpItem['country'] = row[5]
+					tmpItem['region'] = row[6]
+					tmpItem['latitude'] = row[7]
+					tmpItem['longitude'] = row[8]
+					tmpItem['employment'] = row[9]
+					tmpItem['tags'] = row[10]
+					break
+			count += 1
+	return tmpItem
+
+
 def loadItems():
 	itemset ={}
-	itemset_active = []
 	count= 0
 	with open(DATAPATH+'/original/items.csv','rb') as f:
 
@@ -39,7 +75,6 @@ def loadItems():
 		for row in reader:
 			if count>1:
 				tmpItem = {}
-				tmpItemID = row[0]
 				tmpItem['title'] = row[1]
 				tmpItem['career_level'] = row[2]
 				tmpItem['discipline_id'] = row[3]
@@ -50,12 +85,9 @@ def loadItems():
 				tmpItem['longitude'] = row[8]
 				tmpItem['employment'] = row[9]
 				tmpItem['tags'] = row[10]
-				
 				itemset[str(row[0])] = tmpItem
-				if int(row[12]) == 1:
-					itemset_active.append(tmpItemID)
 			count += 1
-	return itemset,itemset_active
+	return itemset
 
 # instead of loading unnecessary 150.000.000 users
 def loadTargetUsersWithProfile():
@@ -95,59 +127,72 @@ def loadTargetUserIDs(filename):
 
 	return target_users_id
 
-def loadImpressionsDictByFilename(filename):
-	impressions = {}
+
+def loadImpressions(userid,week):
+	impressions_array = []
+	count= 0
+	with open(DATAPATH+'/impressions/week'+str(week)+'b.csv','rb') as f:
+		reader = csv.reader(f, delimiter='\t')
+		for row in reader:
+			if count>1:
+				if int(userid) == int(row[0]):
+					impressions_array += row[3].split(",")
+					break
+			count += 1
+	return impressions_array
+
+def loadImpressionsByUseridFilename(userid,filename):
+	impressions_array = []
 	count= 0
 	with open(DATAPATH+'/impressions/'+filename,'rb') as f:
 		reader = csv.reader(f, delimiter='\t')
 		for row in reader:
 			if count>1:
-				tmpID = row[0]
-				if tmpID not in impressions:
-					impressions[tmpID] = row[3].split(",")
-				else:
-					impressions[tmpID] += row[3].split(",")
+				if int(userid) == int(row[0]):
+					impressions_array += row[3].split(",")
+					break
 			count += 1
-	return impressions
+	return impressions_array
 
-def loadInteractionsByWeeks(weeks):
-	dic = {}
-	for week in weeks:
-		count = 0
-		with open(DATAPATH+'/interactions/week'+str(week)+'b.csv','rb') as f:
-			reader = csv.reader(f, delimiter='\t')
-			for row in reader:
-				if count>1:
-					userid = row[0]
-					itemid = row[1]
-					intype = row[2]
-					if userid not in dic:
-						dic[userid] = {}
-					dic[userid][itemid]=intype
-				count += 1
-	return dic
-
-def normalizeItemFeatures(item,titles_base,tags_base,indu_base):
+def normalizeItemFeatures(item,seenTitles,seenTags):
 	career_level = 0
 	if item['career_level'] != 'null' and item['career_level'] != 'NULL' and item['career_level'] != '':
 		career_level = int(str(item['career_level']))
 	
 	feat_arr = []
-	feat_arr.append(calSimScoreForLists(titles_base,item['title'].split(",")))
-	feat_arr.append(calSimScoreForLists(tags_base,item['tags'].split(",")))
+	feat_arr.append(calSimScoreForLists(seenTitles,item['title'].split(",")))
+	feat_arr.append(calSimScoreForLists(seenTags,item['tags'].split(",")))
 	feat_arr.append(career_level)
 	feat_arr.append(int(item['discipline_id']))
-
-	# item_ind_id = item['industry_id']
-	# item_ind_id_arr = [item_ind_id]
-	# feat_arr.append(calSimScoreForListsSoft(indu_base,item_ind_id_arr))
 	feat_arr.append(int(item['industry_id']))
-	
 	feat_arr.append(convertCountryToCode(item['country']))
 	feat_arr.append(int(item['region']))
 	feat_arr.append(int(item['employment']))
 	return feat_arr
 
+
+# def preprocessActiveItems(userprofile):
+# 	itemset = []
+# 	count= 0
+# 	with open(DATAPATH+'/active_items.csv','rb') as f:
+# 		reader = csv.reader(f, delimiter='\t')
+# 		for row in reader:
+# 			if count>1:
+# 				if str(userprofile['discipline_id']) == str(row[3]):
+# 					tmpItem = {}
+# 					tmpItem['title'] = row[1]
+# 					tmpItem['career_level'] = row[2]
+# 					tmpItem['discipline_id'] = row[3]
+# 					tmpItem['industry_id'] = row[4]
+# 					tmpItem['country'] = row[5]
+# 					tmpItem['region'] = row[6]
+# 					tmpItem['latitude'] = row[7]
+# 					tmpItem['longitude'] = row[8]
+# 					tmpItem['employment'] = row[9]
+# 					tmpItem['tags'] = row[10]
+# 					itemset.append(tmpItem)
+# 			count += 1
+# 	return impressions_array
 
 
 def calOccurenceRank(disorderList):
@@ -169,17 +214,6 @@ def calSimScoreForLists(passtset,newset):
 	else:
 		return 0
 
-def calSimScoreForListsSoft(passtset,newset):
-	if len(set(passtset[:1]).intersection(set(newset))):
-		return 5
-	elif len(set(passtset[:4]).intersection(set(newset))):
-		return 4
-	elif len(set(passtset).intersection(set(newset))):
-		return 3
-	else:
-		return 0
-
-
 def convertCountryToCode(country):
 	if country == 'de':
 		return 3
@@ -198,8 +232,6 @@ def convertCountryToCode(country):
 # - - - MAIN - - - 
 # =====================================
 
-start_time = time.time()
-
 in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
 
@@ -216,7 +248,7 @@ with open(DATAPATH+'/solution/'+result_file, 'w') as f:
 # -------------------------------------
 
 
-itemset,itemset_active = loadItems()
+itemset = loadItems()
 
 print 'items loaded ... '
 
@@ -225,19 +257,9 @@ userset = loadTargetUsersWithProfile()
 print 'target users loaded ... '
 
 target_user_ids = loadTargetUserIDs('target/target_users_small.csv')
-# target_user_ids = loadTargetUserIDs('target/target_users_one.csv')
 # target_user_ids = loadTargetUserIDs('target/target_users.csv')
 
 print 'user ids loaded ...'
-
-dic_interactions = loadInteractionsByWeeks([40,41,42,43])
-
-print 'weekly interactions loaded'
-
-
-dic_impressions = loadImpressionsDictByFilename("week-40-41-42-43c.csv")
-
-print "weekly impressions loaded"
 
 output = []
 maincounter = 0
@@ -245,16 +267,61 @@ for user in target_user_ids:
 
 	print 'processing user ', user
 
+	# writing process
 	interactions = {}
-	impressions = []
+	interactions_tmp = loadInteractionsByUserAndWeek(user,40)
+	interactions = dict(interactions.items() + interactions_tmp.items())
 
-	
-	if user in dic_interactions:
-		interactions = dic_interactions[user]
+	interactions_tmp = loadInteractionsByUserAndWeek(user,41)
+	interactions = dict(interactions.items() + interactions_tmp.items())
 
-	if user in dic_impressions:
-		impressions =  dic_impressions[user]
-	
+	interactions_tmp = loadInteractionsByUserAndWeek(user,42)
+	interactions = dict(interactions.items() + interactions_tmp.items())
+
+	interactions_tmp = loadInteractionsByUserAndWeek(user,43)
+	interactions = dict(interactions.items() + interactions_tmp.items())
+
+	print 'weekly interactions loaded'
+
+	impressions =  loadImpressionsByUseridFilename(user,'week-40-41-42-43c.csv')
+
+	print "weekly impressions loaded"
+
+
+
+# # saving pre-compiled data for a fast experiment
+# # -------------
+
+# # generate impression itemset
+# itemset_reduced = {}
+# for item in impressions:
+# 	itemset_reduced[item] = itemset[item] 
+
+# for key, value in interactions.items():
+# 	itemset_reduced[key] = itemset[key] 
+
+# print "itemset_imp generated"
+
+# dic_ai ={"int":interactions,"imp":impressions,"user":user,"items":itemset_reduced}
+# with open(DATAPATH+'/testing_someItems.json', 'w') as fp:
+#     json.dump(dic_ai, fp)
+
+# print 'yes'
+
+# sys.exit()
+
+
+# # loading pre-compiled data for a fast experiment 
+# # -------------
+# with open(DATAPATH+"/testing_someItems.json") as f:
+# 	content = f.read()
+# 	arr_json = json.loads(content)
+# 	interactions = arr_json['int']
+# 	impressions = arr_json['imp']
+# 	user = arr_json['user']
+# 	itemset = arr_json['items']
+
+
 
 	# comparable data calculation
 	# ----------------------------------
@@ -262,9 +329,8 @@ for user in target_user_ids:
 
 	# prepare for nomalization: reduction process
 	# ----------------------------------
-	titles_collected = []
-	tags_collected = []
-	indu_collected = []
+	title_cluster = []
+	tag_cluster = []
 
 
 	for key, value in interactions.items():
@@ -274,22 +340,17 @@ for user in target_user_ids:
 				continue
 			item = itemset[key]
 			pieces_title = str(item['title']).split(",")
-			titles_collected = titles_collected + pieces_title
+			title_cluster = title_cluster + pieces_title
 
-			pieces_tags = str(item['tags']).split(",")
-			tags_collected = tags_collected + pieces_tags
-
-			# indu_collected.append(item['industry_id'])
+			pieces_tags = str(item['title']).split(",")
+			tag_cluster = tag_cluster + pieces_tags
 
 
-	titles_tags = titles_collected+tags_collected
+
+	seenTitles = calOccurenceRank(title_cluster)
+	seenTags = calOccurenceRank(tag_cluster)
 
 
-	titles_base = calOccurenceRank(titles_tags)
-	tags_base = calOccurenceRank(titles_tags)
-	indu_base = calOccurenceRank(indu_collected)
-
-	# print 'nomalization prepared'
 
 	# Normalization process
 	# ===============================
@@ -306,27 +367,18 @@ for user in target_user_ids:
 		if key not in itemset:
 			continue
 		item = itemset[key]
-		feat_arr = normalizeItemFeatures(item,titles_base,tags_base,indu_base)
+		feat_arr = normalizeItemFeatures(item,seenTitles,seenTags)
 		X.append(feat_arr)
 		items_int.append(key)
 		if value == 4:
-			value = -1
+			value = 0
 		elif value == 3:
-			value = 6
+			value = 9
 		elif value == 2:
-			value = 4
+			value = 8
 		elif value == 1:
-			value = 2
-		# if value == 4:
-		# 	value = 0
-		# elif value == 3:
-		# 	value = 9
-		# elif value == 2:
-		# 	value = 8
-		# elif value == 1:
-		# 	value = 6
+			value = 6
 		Y.append(value)
-
 
 	# impressions
 
@@ -339,10 +391,9 @@ for user in target_user_ids:
 			continue
 
 		item = itemset[key]
-		feat_arr = normalizeItemFeatures(item,titles_base,tags_base,indu_base)
+		feat_arr = normalizeItemFeatures(item,seenTitles,seenTags)
 		X.append(feat_arr)
-		Y.append(0)
-		# Y.append(1)
+		Y.append(1)
 
 
 	if Y is None or len(set(Y)) == 0:
@@ -355,35 +406,40 @@ for user in target_user_ids:
 		print 'interactions missing', user
 		# print Y
 	else:
-		# preprocess items - heavy
+		# preprocess items 
 		x = []
 		x_ids = []
 		count= 0
-		for activeItemID in itemset_active:
-			userinfo = userset[str(user)]
-			tmpItem = itemset[activeItemID]
+		with open(DATAPATH+'/target/active_items.csv','rb') as f:
+			reader = csv.reader(f, delimiter='\t')
+			for row in reader:
+				if count>1:
+					userinfo = userset[str(user)]
+					# simple filtering condition
+					# if str(userinfo['discipline_id']) == str(row[3]):
+					tmpItem = {}
+					tmpItem['title'] = row[1]
+					tmpItem['career_level'] = row[2]
+					tmpItem['discipline_id'] = row[3]
+					tmpItem['industry_id'] = row[4]
+					tmpItem['country'] = row[5]
+					tmpItem['region'] = row[6]
+					tmpItem['latitude'] = row[7]
+					tmpItem['longitude'] = row[8]
+					tmpItem['employment'] = row[9]
+					tmpItem['tags'] = row[10]
+					feat_arr = normalizeItemFeatures(tmpItem,seenTitles,seenTags)
+					x.append(feat_arr)
+					x_ids.append(row[0])
+				count += 1
 
-			tmpItemTags = tmpItem['tags'].split(",")
-			tmpItemTitles = tmpItem['title'].split(",")
-			b = tmpItemTags +tmpItemTitles
-			if not set(titles_tags).isdisjoint(b):
-				feat_arr = normalizeItemFeatures(tmpItem,titles_base,tags_base,indu_base)
-				x.append(feat_arr)
-				x_ids.append(activeItemID)
-
-
-		if len(x) == 0: #the case as interactions are missiong
-			continue
 		# SVM
-
-		# print len(X),' ',len(Y), ' ',len(x)
 
 		svr_rbf = SVR(kernel='rbf', C=1, gamma=0.1)
 		y = svr_rbf.fit(X, Y).predict(x)
 		y = y.tolist()
 
-
-		# making pair - heavy
+		# making pair
 
 		itemscore = []
 		for i in xrange(0,len(x)):
@@ -403,7 +459,6 @@ for user in target_user_ids:
 		yy = ",".join(recommended_items)
 		outputline = str(user)+"\t"+yy
 		output.append(outputline)
-
 
 		# chunck output
 
@@ -427,4 +482,3 @@ with open(DATAPATH+'/solution/'+result_file, 'a') as f:
 		f.write(str(line)+"\n")
 
 print "all processes terminated ..."
-print("--- %s seconds ---" % (time.time() - start_time))

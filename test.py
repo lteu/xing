@@ -16,7 +16,19 @@ start_time = time.time()
 
 # c = a+b
 # print c
-print datetime.datetime.fromtimestamp(float(1446131843)).strftime('%W')
+# print datetime.datetime.fromtimestamp(float(1446131843)).strftime('%W')
+
+
+a = ["hello"]
+# b = ["bello","hello"]
+b = ["bello","hello"]
+
+# print len(set(b).intersection(set(a)))
+
+if not set(a).isdisjoint(b):
+	print 'yes'
+else:
+	print 'no'
 
 # ct = 0
 # with open('data/impressions.csv','rb') as f:
@@ -33,12 +45,12 @@ print datetime.datetime.fromtimestamp(float(1446131843)).strftime('%W')
 # print ct,' records'
 
 # lines=[1000235]
-i=0
-f=open('data/original/interactions.csv')
-for line in f:
-    if i >0 :
-        print line
-    i+=1
+# i=0
+# f=open('data/original/interactions.csv')
+# for line in f:
+#     if i >0 :
+#         print line
+#     i+=1
 
 # x = linecache.getline('data/interactions.csv', 1000235)
 

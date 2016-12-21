@@ -34,7 +34,7 @@ def score(S, T):
 				count += 1
 	return total/count
 
-def score_simple(S, T):
+def score_simple(S, T,U):
 	score = 0.0
 	count = 0
 	total = 0
@@ -43,7 +43,7 @@ def score_simple(S, T):
 	for a in T:
 		u = str(a[0])
 		t = set(a[1])
-		if u in S:
+		if u in U and u in S:
 			r = S[u] #//r = ordered list of recommended items for user u
 
 
@@ -82,12 +82,25 @@ in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
 
 
+
+# loading U
+# =============================================================
+U = []
+linecount = 0
+# with open(DATAPATH+'/solution/solution_file_example.csv','rb') as f:
+with open(DATAPATH+'/solution/solution_svm_1.csv','rb') as f:
+	reader = csv.reader(f,delimiter='\t')
+	for row in reader:
+		if linecount > 0:
+			U.append(row[0])
+		linecount += 1
+
 # loading S
 # =============================================================
 S={}
 linecount = 0
-# with open(DATAPATH+'/solution/solution_file_example.csv','rb') as f:
-with open(DATAPATH+'/solution/solution_svm_1.csv','rb') as f:
+with open(DATAPATH+'/solution/solution_file_example.csv','rb') as f:
+# with open(DATAPATH+'/solution/solution_svm_1.csv','rb') as f:
 	reader = csv.reader(f,delimiter='\t')
 	for row in reader:
 		if linecount > 0:
@@ -127,7 +140,7 @@ for userid, items in T_dic.iteritems():
 
 # val = score(S, T)
 
-val = score_simple(S, T)
+val = score_simple(S, T,U)
 print 'val finale:',val
 
 

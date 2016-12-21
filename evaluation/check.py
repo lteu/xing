@@ -85,7 +85,29 @@ user = 131843
 # =============================================================
 I = []
 linecount = 0
-with open(DATAPATH+'/interactions/week44b.csv','rb') as f:
+with open(DATAPATH+'/interactions/week43b.csv','rb') as f:
+	reader = csv.reader(f,delimiter='\t')
+	for row in reader:
+		if linecount > 0 and int(row[0]) == user:
+			itemid = row[1]
+			interaction = row[2]
+			if int(interaction) == 1 or int(interaction) == 2 or int(interaction) == 3:
+				I.append(itemid)
+		linecount += 1
+
+linecount = 0
+with open(DATAPATH+'/interactions/week42b.csv','rb') as f:
+	reader = csv.reader(f,delimiter='\t')
+	for row in reader:
+		if linecount > 0 and int(row[0]) == user:
+			itemid = row[1]
+			interaction = row[2]
+			if int(interaction) == 1 or int(interaction) == 2 or int(interaction) == 3:
+				I.append(itemid)
+		linecount += 1
+
+linecount = 0
+with open(DATAPATH+'/interactions/week41b.csv','rb') as f:
 	reader = csv.reader(f,delimiter='\t')
 	for row in reader:
 		if linecount > 0 and int(row[0]) == user:
@@ -113,7 +135,7 @@ with open(DATAPATH+'/solution/solution_svm.csv','rb') as f:
 # =============================================================
 T = []
 linecount = 0
-with open(DATAPATH+'/ground/interactions_week45.csv','rb') as f:
+with open(DATAPATH+'/ground/interactions_week44.csv','rb') as f:
 	reader = csv.reader(f,delimiter='\t')
 	for row in reader:
 		if linecount > 0 and int(row[0]) == user:
@@ -133,7 +155,7 @@ output_s = ""
 for x in xrange(0,15):
 	if x < len(I) -1:
 		i = I[x]
-		if t in itemset:
+		if i in itemset:
 			output_i += str(itemset[i])+"\n"
 
 	if x < len(T) -1:

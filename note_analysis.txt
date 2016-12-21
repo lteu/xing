@@ -32,8 +32,12 @@ week44
 2584619	1581843	3      	15     	15     	de     	9      	51.5   	7.0    	1      	3050589,3843067,137487,2076438 	NULL   	0
 
 
-ziniu.yang@studio.unibo.it
-monster1997?
+RFB
+val finale: 0.0565753424658
+POL
+0.00643835616438
+Baseline
+0.00662952350631
 
 La soglia economica consente la richiesta della borsa di studio che include l'esonero totale delle tasse. Deve quindi richiedere la borsa di studio e NON la fascia di contribuzione ridotta
 
