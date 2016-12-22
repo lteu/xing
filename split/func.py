@@ -18,7 +18,7 @@ from sklearn.svm import SVC
 
 
 
-def featureToLine(tmpItem,value,set_ID):
+def featureToLine(tmpItem,value,set_ID,itemid):
 	arr_all = []
 
 	title = tmpItem['title']
@@ -53,9 +53,9 @@ def featureToLine(tmpItem,value,set_ID):
 	# career_level = tmpItem['career_level']
 	career_level = tmpItem['career_level'] if tmpItem['career_level'].strip() != ""  else '0'
 	employment = tmpItem['employment'] if tmpItem['employment'].strip() != ""   else '0'
-	rlt = str(value)+" qid:1 1:"+career_level+" 2:"+employment+output_dynam
+	rlt = str(value)+" qid:1 1:"+career_level+" 2:"+employment+output_dynam+" #"+str(itemid)
 	# print rlt
-	return rlt,output_dynam
+	return rlt
 
 
 def arrayToStr(arr_all):

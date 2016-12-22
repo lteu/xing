@@ -39,7 +39,7 @@ target_user_ids = loadTargetUserIDs('target/target_users_1000.csv',DATAPATH)
 
 for user in target_user_ids:
 	# print user
-	command = './svm_rank_learn -c 3 -v 0 '+DATAPATH+'/traindata/'+str(user)+'_train.dat '+DATAPATH+'/model/'+str(user)+'_model.txt'
+	command = './svm_rank_learn -c 0.1 -v 0 '+DATAPATH+'/traindata/'+str(user)+'_train.dat '+DATAPATH+'/model/'+str(user)+'_model.txt'
 
 	print command
 	os.system(command)

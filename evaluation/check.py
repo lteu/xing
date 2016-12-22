@@ -4,7 +4,7 @@
 This checks effectively how the recommendation is going on
 for a specific user
 
-
+Draft Version
 '''
 
 import csv

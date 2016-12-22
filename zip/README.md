@@ -1,0 +1,1 @@
+Some people suggest that let Python execute the zipped file may enhance the program speed, however, this have been proved that it is not the case.

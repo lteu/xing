@@ -1,3 +1,6 @@
+'''
+this has nothing todo with scikit learn, just personal test ground
+'''
 # simple prediction, source: http://stackoverflow.com/questions/24517858/time-series-forecasting-with-support-vector-regression
 
 import numpy as np

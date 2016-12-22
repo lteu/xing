@@ -123,26 +123,26 @@ def loadInteractionsByWeeks(weeks):
 					intype = row[2]
 					if userid not in dic:
 						dic[userid] = {}
-						dic[userid][itemid]=[intype,1]
-					elif itemid not in dic[userid]:
-						dic[userid][itemid]=[intype,1]
-					else:
-						prevCount = dic[userid][itemid][1]
-						dic[userid][itemid]=[intype,(prevCount+1)]
+					dic[userid][itemid]=intype
 				count += 1
 	return dic
 
-def normalizeItemFeatures(item,seenTitles,seenTags):
+def normalizeItemFeatures(item,titles_base,tags_base,indu_base):
 	career_level = 0
 	if item['career_level'] != 'null' and item['career_level'] != 'NULL' and item['career_level'] != '':
 		career_level = int(str(item['career_level']))
 	
 	feat_arr = []
-	feat_arr.append(calSimScoreForLists(seenTitles,item['title'].split(",")))
-	feat_arr.append(calSimScoreForLists(seenTags,item['tags'].split(",")))
+	feat_arr.append(calSimScoreForLists(titles_base,item['title'].split(",")))
+	feat_arr.append(calSimScoreForLists(tags_base,item['tags'].split(",")))
 	feat_arr.append(career_level)
 	feat_arr.append(int(item['discipline_id']))
+
+	# item_ind_id = item['industry_id']
+	# item_ind_id_arr = [item_ind_id]
+	# feat_arr.append(calSimScoreForListsSoft(indu_base,item_ind_id_arr))
 	feat_arr.append(int(item['industry_id']))
+	
 	feat_arr.append(convertCountryToCode(item['country']))
 	feat_arr.append(int(item['region']))
 	feat_arr.append(int(item['employment']))
@@ -168,6 +168,17 @@ def calSimScoreForLists(passtset,newset):
 		return 1
 	else:
 		return 0
+
+def calSimScoreForListsSoft(passtset,newset):
+	if len(set(passtset[:1]).intersection(set(newset))):
+		return 5
+	elif len(set(passtset[:4]).intersection(set(newset))):
+		return 4
+	elif len(set(passtset).intersection(set(newset))):
+		return 3
+	else:
+		return 0
+
 
 def convertCountryToCode(country):
 	if country == 'de':
@@ -195,7 +206,7 @@ DATAPATH = '/'.join(in_path) + '/data'
 
 # create solution file process
 # -------------------------------------
-result_file = 'solution_svm.csv'
+result_file = 'solution_scikit.csv'
 header = "user_id\titems"
 with open(DATAPATH+'/solution/'+result_file, 'w') as f:
 	f.write(str(header)+"\n")
@@ -209,13 +220,8 @@ itemset,itemset_active = loadItems()
 
 print 'items loaded ... '
 
-userset = loadTargetUsersWithProfile()
 
-print 'target users loaded ... '
-
-target_user_ids = loadTargetUserIDs('target/target_users_small.csv')
-# target_user_ids = loadTargetUserIDs('target/target_users.csv')
-
+target_user_ids = loadTargetUserIDs('target/target_users_100.csv')
 print 'user ids loaded ...'
 
 dic_interactions = loadInteractionsByWeeks([40,41,42,43])
@@ -250,26 +256,32 @@ for user in target_user_ids:
 
 	# prepare for nomalization: reduction process
 	# ----------------------------------
-	title_cluster = []
-	tag_cluster = []
+	titles_collected = []
+	tags_collected = []
+	indu_collected = []
 
 
 	for key, value in interactions.items():
 		key = str(key)
-		if int(value[0]) != 4: #relevant item id
+		if int(value) != 4: #relevant item id
 			if key not in itemset:
 				continue
 			item = itemset[key]
 			pieces_title = str(item['title']).split(",")
-			title_cluster = title_cluster + pieces_title
+			titles_collected = titles_collected + pieces_title
 
 			pieces_tags = str(item['tags']).split(",")
-			tag_cluster = tag_cluster + pieces_tags
+			tags_collected = tags_collected + pieces_tags
+
+			# indu_collected.append(item['industry_id'])
 
 
+	titles_tags = titles_collected+tags_collected
 
-	seenTitles = calOccurenceRank(title_cluster)
-	seenTags = calOccurenceRank(tag_cluster)
+
+	titles_base = calOccurenceRank(titles_tags)
+	tags_base = calOccurenceRank(titles_tags)
+	indu_base = calOccurenceRank(indu_collected)
 
 	# print 'nomalization prepared'
 
@@ -283,29 +295,30 @@ for user in target_user_ids:
 	# interactions
 
 	items_int = []
-	for key, typeAndCount in interactions.items():
-		actType = int(typeAndCount[0])
-		actNum = int(typeAndCount[1])
-		value = 0
+	for key, value in interactions.items():
+		value = int(value)
 		if key not in itemset:
 			continue
 		item = itemset[key]
-		feat_arr = normalizeItemFeatures(item,seenTitles,seenTags)
+		feat_arr = normalizeItemFeatures(item,titles_base,tags_base,indu_base)
 		X.append(feat_arr)
 		items_int.append(key)
-		if actType == 4: #last action is delete
-			value = 0
-		elif actType == 3:
-			value = 7
-		elif actType == 2:
+		if value == 4:
+			value = -1
+		elif value == 3:
 			value = 6
-		elif actType == 1:
+		elif value == 2:
 			value = 4
-
-		if actType != 4 and actNum>3:
-			value += 2
-
-		# print value
+		elif value == 1:
+			value = 2
+		# if value == 4:
+		# 	value = 0
+		# elif value == 3:
+		# 	value = 9
+		# elif value == 2:
+		# 	value = 8
+		# elif value == 1:
+		# 	value = 6
 		Y.append(value)
 
 
@@ -320,9 +333,10 @@ for user in target_user_ids:
 			continue
 
 		item = itemset[key]
-		feat_arr = normalizeItemFeatures(item,seenTitles,seenTags)
+		feat_arr = normalizeItemFeatures(item,titles_base,tags_base,indu_base)
 		X.append(feat_arr)
-		Y.append(1)
+		Y.append(0)
+		# Y.append(1)
 
 
 	if Y is None or len(set(Y)) == 0:
@@ -335,19 +349,27 @@ for user in target_user_ids:
 		print 'interactions missing', user
 		# print Y
 	else:
-		# prepose - heavy
+		# preprocess items - heavy
 		x = []
 		x_ids = []
 		count= 0
 		for activeItemID in itemset_active:
-			userinfo = userset[str(user)]
 			tmpItem = itemset[activeItemID]
-			feat_arr = normalizeItemFeatures(tmpItem,seenTitles,seenTags)
-			x.append(feat_arr)
-			x_ids.append(activeItemID)
+
+			tmpItemTags = tmpItem['tags'].split(",")
+			tmpItemTitles = tmpItem['title'].split(",")
+			b = tmpItemTags +tmpItemTitles
+			if not set(titles_tags).isdisjoint(b):
+				feat_arr = normalizeItemFeatures(tmpItem,titles_base,tags_base,indu_base)
+				x.append(feat_arr)
+				x_ids.append(activeItemID)
 
 
+		if len(x) == 0: #the case as interactions are missiong
+			continue
 		# SVM
+
+		# print len(X),' ',len(Y), ' ',len(x)
 
 		svr_rbf = SVR(kernel='rbf', C=1, gamma=0.1)
 		y = svr_rbf.fit(X, Y).predict(x)
