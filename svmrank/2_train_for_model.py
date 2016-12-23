@@ -35,11 +35,11 @@ in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
 
 
-target_user_ids = loadTargetUserIDs('target/target_users_1000.csv',DATAPATH)
+target_user_ids = loadTargetUserIDs('target/target_users_100.csv',DATAPATH)
 
 for user in target_user_ids:
 	# print user
-	command = './svm_rank_learn -c 0.01 -v 0 '+DATAPATH+'/traindata/'+str(user)+'_train.dat '+DATAPATH+'/model0.01/'+str(user)+'_model.txt'
+	command = './svm_rank_learn -c 0.1 -v 0 '+DATAPATH+'/traindata/'+str(user)+'_train.dat '+DATAPATH+'/model0.1/'+str(user)+'_model.txt'
 
 	print command
 	os.system(command)

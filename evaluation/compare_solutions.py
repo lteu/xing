@@ -14,12 +14,13 @@ from metrics import *
 
 start_time = time.time()
 
-threshold = 100
+threshold = 1000
 in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
 
 
-solution_file_name = 'solution_scikit.csv'
+# solution_file_name = 'solution_scikit.csv'
+solution_file_name = 'solution_svmrank_sr0.01.csv'
 solution_file_path = DATAPATH+'/solution/'+solution_file_name
 
 baseline_file_path = DATAPATH+'/solution/solution_file_example.csv'

@@ -29,8 +29,8 @@ start_time = time.time()
 
 in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
-result_out_file ='solution_svmrank_0.1.csv'
-result_in_path =  DATAPATH+"/result-0.1/"
+result_out_file ='solution_svmrank_srn0.01.csv'
+result_in_path =  DATAPATH+"/result0.01/"
 
 target_user_ids = loadTargetUserIDs('target/target_users_1000.csv',DATAPATH)
 
