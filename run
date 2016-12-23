@@ -1,0 +1,50 @@
+#! /bin/bash
+
+
+IN_PATH='data'
+JOBS=$IN_PATH'/parallel.txt'
+LOCK=$IN_PATH'/run_solvers.lock'
+COMPLETED=$IN_PATH'/completed.txt'
+
+DATAOUTPATH=$IN_PATH'/result0.01/'
+INMODELPATH=$IN_PATH'/model0.01/'
+TESTDATA=$IN_PATH'/testdata/testset.dat'
+ERR=$IN_PATH'/err_'$$'_'$HOSTNAME
+
+while
+  [ -s $JOBS  ] #True if FILE exists and has a size greater than zero.
+do
+  # echo 'lock read'
+  lockfile $LOCK
+
+  job=`head -n 1 $JOBS` #prima in head -1 prende la prima riga.
+  # cat $JOBS | sed '1d' > $JOBS #tutto contenuto va in sed, sed '1d' elimina la prima riga, 
+
+  cat $JOBS | sed '1d' > $ERR 
+  cat $ERR > $JOBS #tutto contenuto va in sed, sed '1d' elimina la prima riga, 
+
+  MODELPATH=$INMODELPATH$job'_model.txt'
+  file_path=$DATAOUTPATH$job'_result.dat'
+
+  if
+    [ -z "$job" ] || [ -e "$file_path" ] #True of the length if "STRING" is zero, or result file exist
+  then
+
+    # echo "leave lock1 "$file_path
+    rm -f $LOCK # rilascia lock
+    continue
+  fi
+
+  rm -f $LOCK
+  # echo $file_path
+
+  # python //home/phd-students/liu/progetto/xing/svmrank/3_predict0.01.py $job
+  ./svm_rank_classify $TESTDATA $MODELPATH $file_path
+
+  # echo 'lock write'
+  lockfile $LOCK
+  echo $job >> $COMPLETED 
+  rm -f  $LOCK
+  echo 'completed'
+  
+done

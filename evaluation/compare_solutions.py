@@ -14,12 +14,12 @@ from metrics import *
 
 start_time = time.time()
 
-
+threshold = 100
 in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
 
 
-solution_file_name = 'solution_svmrank_130.csv'
+solution_file_name = 'solution_scikit.csv'
 solution_file_path = DATAPATH+'/solution/'+solution_file_name
 
 baseline_file_path = DATAPATH+'/solution/solution_file_example.csv'
@@ -36,6 +36,9 @@ with open(solution_file_path,'rb') as f:
 		if linecount > 0:
 			S[row[0]] = row[1].split(",")
 		linecount += 1
+
+		if linecount == threshold + 1:
+			break
 
 print 'solution file loaded : ',solution_file_path
 
@@ -84,7 +87,6 @@ print 'ground loaded ',ground_file_path
 # =============================================================
 
 # val = score(S, T)
-
 val = score_simple(S, T)
 print 'svm cover:',val
 

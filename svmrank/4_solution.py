@@ -29,8 +29,8 @@ start_time = time.time()
 
 in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
-result_file ='solution_svmrank.csv'
-
+result_out_file ='solution_svmrank_0.1.csv'
+result_in_path =  DATAPATH+"/result-0.1/"
 
 target_user_ids = loadTargetUserIDs('target/target_users_1000.csv',DATAPATH)
 
@@ -44,7 +44,7 @@ testlines = [line.rstrip('\n') for line in open(testfile_path)]
 for user in target_user_ids:
 	arr = []
 	
-	resfile_path = DATAPATH+"/result/"+str(user)+"_result.dat"
+	resfile_path = result_in_path+str(user)+"_result.dat"
 	if os.path.exists(resfile_path):
 		# load results
 		reslines = [line.rstrip('\n') for line in open(resfile_path)]
@@ -73,7 +73,7 @@ for user in target_user_ids:
 		print user
 
 # write solution file
-with open(DATAPATH+'/solution/'+result_file, 'w') as f:
+with open(DATAPATH+'/solution/'+result_out_file, 'w') as f:
 	f.write("userid\titems\n")
 	for line in output:
 		f.write(str(line)+"\n")

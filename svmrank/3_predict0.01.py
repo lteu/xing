@@ -34,9 +34,9 @@ start_time = time.time()
 
 in_path = os.path.realpath(__file__).split('/')[:-2]
 DATAPATH = '/'.join(in_path) + '/data'
-OutPath = DATAPATH+"/result1/"
-IN_MODEL_PATH = DATAPATH+'/model1/'
-target_user_ids = loadTargetUserIDs('target/target_users_100.csv',DATAPATH)
+OutPath = DATAPATH+"/result0.01/"
+IN_MODEL_PATH = DATAPATH+'/model0.01/'
+target_user_ids = loadTargetUserIDs('target/target_users_1000.csv',DATAPATH)
 
 for user in target_user_ids:
 	# print user

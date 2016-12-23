@@ -28,7 +28,7 @@ def score(S, T):
 			score += tmpScore
 			# if tmpScore > 0:
 			# 	print 'user:', u, ' t:', t, ' r:', r
-		count += 1
+			count += 1
 
 	return score
 
@@ -70,7 +70,7 @@ def score_simple(S, T):
 	score = 0.0
 	count = 0
 	total = 0
-
+	execount = 0
 
 	for a in T:
 		u = str(a[0])
@@ -97,5 +97,7 @@ def score_simple(S, T):
 				# 	print '---------------------'
 
 				count += 1
+		# execount = execount + 1
+
 	return total/count
 

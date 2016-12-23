@@ -137,10 +137,6 @@ def normalizeItemFeatures(item,titles_base,tags_base,indu_base):
 	feat_arr.append(calSimScoreForLists(tags_base,item['tags'].split(",")))
 	feat_arr.append(career_level)
 	feat_arr.append(int(item['discipline_id']))
-
-	# item_ind_id = item['industry_id']
-	# item_ind_id_arr = [item_ind_id]
-	# feat_arr.append(calSimScoreForListsSoft(indu_base,item_ind_id_arr))
 	feat_arr.append(int(item['industry_id']))
 	
 	feat_arr.append(convertCountryToCode(item['country']))
@@ -221,7 +217,7 @@ itemset,itemset_active = loadItems()
 print 'items loaded ... '
 
 
-target_user_ids = loadTargetUserIDs('target/target_users_100.csv')
+target_user_ids = loadTargetUserIDs('target/target_users_1000.csv')
 print 'user ids loaded ...'
 
 dic_interactions = loadInteractionsByWeeks([40,41,42,43])
@@ -279,8 +275,8 @@ for user in target_user_ids:
 	titles_tags = titles_collected+tags_collected
 
 
-	titles_base = calOccurenceRank(titles_tags)
-	tags_base = calOccurenceRank(titles_tags)
+	titles_base = calOccurenceRank(titles_collected)
+	tags_base = calOccurenceRank(tags_collected)
 	indu_base = calOccurenceRank(indu_collected)
 
 	# print 'nomalization prepared'
